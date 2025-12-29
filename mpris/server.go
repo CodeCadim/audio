@@ -200,7 +200,8 @@ func (s *ConcreteServer) Close() error {
 }
 
 // NewServer opens the dbus connection and registers everything important
-func NewServer(logger librespot.Logger) (_ *ConcreteServer, err error) {
+func NewServer(logger librespot.Logger, deviceName string) (_ *ConcreteServer, err error) {
+
 	s := &ConcreteServer{
 		log: logger,
 		rootInterface: MediaPlayer2RootInterface{
@@ -243,7 +244,7 @@ func NewServer(logger librespot.Logger) (_ *ConcreteServer, err error) {
 		},
 	)
 
-	reply, err := conn.RequestName("org.mpris.MediaPlayer2.go-librespot", dbus.NameFlagReplaceExisting)
+	reply, err := conn.RequestName("org.mpris.MediaPlayer2."+deviceName, dbus.NameFlagReplaceExisting)
 	if err != nil {
 		return nil, err
 	}
