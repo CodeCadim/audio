@@ -60,8 +60,8 @@ Details about cross-compiling go-librespot are described [here](/CROSS_COMPILE.m
 
 ## Configuration
 
-The default directory for configuration files is `~/.config/go-librespot`. On macOS devices, this is
-`~/Library/Application Support/go-librespot`. You can change this directory with the
+The default directory for configuration files is `~/.config/audio`. On macOS devices, this is
+`~/Library/Application Support/audio`. You can change this directory with the
 `-config_dir` flag. The configuration directory contains:
 
 - `config.yml`: The main configuration (does not exist by default)

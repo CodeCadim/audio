@@ -449,7 +449,7 @@ func loadConfig(cfg *Config) error {
 	if err != nil {
 		return err
 	}
-	defaultConfigDir := filepath.Join(userConfigDir, "go-librespot")
+	defaultConfigDir := filepath.Join(userConfigDir, "audio")
 	f.StringVar(&cfg.ConfigDir, "config_dir", defaultConfigDir, "the configuration directory")
 
 	var configOverrides []string
