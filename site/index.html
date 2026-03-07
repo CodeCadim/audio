@@ -208,6 +208,17 @@
   .rp-vol::-moz-range-thumb:hover{background:#ffcc66;box-shadow:0 0 6px rgba(255,204,102,.3)}
   .rp-vol::-webkit-slider-runnable-track{height:3px;border-radius:2px;background:#1a1e2e}
   .rp-vol::-moz-range-track{height:3px;border-radius:2px;background:#1a1e2e}
+  .rp-channel{
+    display:flex;gap:0;border:1px solid #1a1e2e;border-radius:4px;overflow:hidden;flex-shrink:0;
+  }
+  .rp-ch{
+    background:transparent;border:none;color:#5a6280;font-size:9px;letter-spacing:1px;
+    text-transform:uppercase;padding:4px 10px;cursor:pointer;transition:all .25s;
+    font-family:inherit;
+  }
+  .rp-ch:hover{color:#8a92b0}
+  .rp-ch.active{background:#1a1e2e;color:#ffcc66}
+  .rp-ch+.rp-ch{border-left:1px solid #1a1e2e}
   .radio-hint{margin-top:16px;text-align:center}
   .radio-hint code{color:#5a6280;font-size:10px;transition:color .3s}
   .radio-hint code:hover{color:#7a82a0}
@@ -545,6 +556,15 @@
     font-style:italic;padding:20px 0;
   }
   .radio-card--wide{grid-column:1 / -1}
+  .radio-tabs{display:flex;gap:0;margin-bottom:20px;border:1px solid #151830;border-radius:6px;overflow:hidden;width:fit-content}
+  .radio-tab{
+    background:transparent;border:none;color:#5a6280;font-size:11px;letter-spacing:1px;
+    text-transform:uppercase;padding:8px 20px;cursor:pointer;transition:all .25s;
+    font-family:inherit;
+  }
+  .radio-tab:hover{color:#8a92b0}
+  .radio-tab.active{background:#151830;color:#ffcc66}
+  .radio-tab+.radio-tab{border-left:1px solid #151830}
   @media(max-width:720px){
     .radio-grid{grid-template-columns:1fr}
     .radio-card--wide{grid-column:auto}
@@ -705,9 +725,12 @@
     </div>
 
     <div class="radio-player" id="radio-player">
-      <audio id="radio-audio" preload="none" src="https://radio.cliamp.stream/lofi/stream"></audio>
+      <audio id="radio-audio" preload="none"></audio>
       <div class="rp-led"></div>
-      <span class="rp-label">CLIAMP RADIO</span>
+      <div class="rp-channel">
+        <button class="rp-ch active" data-station="lofi" onclick="switchChannel('lofi')">Lofi</button>
+        <button class="rp-ch" data-station="synthwave" onclick="switchChannel('synthwave')">Synthwave</button>
+      </div>
       <button class="rp-play" onclick="toggleRadio()" aria-label="Play / Stop radio">
         <svg class="rp-icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         <svg class="rp-icon-stop" viewBox="0 0 24 24"><path d="M6 6h12v12H6z"/></svg>
@@ -716,7 +739,7 @@
       <input type="range" class="rp-vol" min="0" max="100" value="70" oninput="setRadioVol(this.value)" aria-label="Volume">
     </div>
     <div class="radio-hint">
-      <code><span class="p">$ </span>cliamp https://radio.cliamp.stream/lofi/stream.pls</code>
+      <code id="radio-hint-cmd"><span class="p">$ </span>cliamp https://radio.cliamp.stream/lofi/stream.pls</code>
     </div>
   </div>
 </section>
@@ -1161,9 +1184,13 @@
       <div class="radio-live"><span class="radio-live-dot"></span> LIVE</div>
       <div class="radio-listeners" id="radio-listeners"></div>
     </div>
-    <div class="install-box" onclick="copyCmd(this,'cliamp https://radio.cliamp.stream/lofi/stream.pls')" style="margin-bottom:28px">
+    <div class="radio-tabs" id="radio-stat-tabs">
+      <button class="radio-tab active" data-station="lofi" onclick="switchStatTab('lofi')">Lofi</button>
+      <button class="radio-tab" data-station="synthwave" onclick="switchStatTab('synthwave')">Synthwave</button>
+    </div>
+    <div class="install-box" id="radio-cmd-box" onclick="copyCmd(this,'cliamp https://radio.cliamp.stream/lofi/stream.pls')" style="margin-bottom:28px">
       <span class="copied-msg">COPIED</span>
-      <code><span class="prompt">$ </span>cliamp https://radio.cliamp.stream/lofi/stream.pls</code>
+      <code><span class="prompt">$ </span><span id="radio-cmd-text">cliamp https://radio.cliamp.stream/lofi/stream.pls</span></code>
     </div>
     <div class="radio-grid">
       <div class="radio-card">
@@ -1230,6 +1257,29 @@ function toggleSound(btn){
 }
 
 /* ── Radio Player ── */
+var currentChannel='lofi';
+var radioStreams={lofi:'https://radio.cliamp.stream/lofi/stream',synthwave:'https://radio.cliamp.stream/synthwave/stream'};
+var radioPls={lofi:'https://radio.cliamp.stream/lofi/stream.pls',synthwave:'https://radio.cliamp.stream/synthwave/stream.pls'};
+
+function switchChannel(ch){
+  currentChannel=ch;
+  document.querySelectorAll('.rp-ch').forEach(function(b){b.classList.toggle('active',b.dataset.station===ch)});
+  var hintEl=document.getElementById('radio-hint-cmd');
+  hintEl.textContent='';
+  var prompt=document.createElement('span');
+  prompt.className='p';
+  prompt.textContent='$ ';
+  hintEl.appendChild(prompt);
+  hintEl.appendChild(document.createTextNode('cliamp '+radioPls[ch]));
+  var a=document.getElementById('radio-audio');
+  var p=document.getElementById('radio-player');
+  if(!a.paused){
+    a.pause();
+    a.src=radioStreams[ch];
+    a.play().catch(function(){p.classList.remove('loading','playing')});
+  }
+}
+
 function toggleRadio(){
   var a=document.getElementById('radio-audio');
   var p=document.getElementById('radio-player');
@@ -1242,7 +1292,7 @@ function toggleRadio(){
   }
   p.classList.add('loading');
   p.classList.remove('playing');
-  a.src='https://radio.cliamp.stream/lofi/stream';
+  a.src=radioStreams[currentChannel];
   a.volume=document.querySelector('.rp-vol').value/100;
   a.play().then(function(){
     p.classList.remove('loading');
@@ -1256,6 +1306,19 @@ function setRadioVol(v){
 }
 
 /* ── Radio Statistics ── */
+var currentStatTab='lofi';
+var radioStatsData=null;
+
+function switchStatTab(ch){
+  currentStatTab=ch;
+  document.querySelectorAll('.radio-tab').forEach(function(b){b.classList.toggle('active',b.dataset.station===ch)});
+  var cmd='cliamp '+radioPls[ch];
+  var box=document.getElementById('radio-cmd-box');
+  box.setAttribute('onclick',"copyCmd(this,'"+cmd+"')");
+  document.getElementById('radio-cmd-text').textContent=cmd;
+  if(radioStatsData)renderStationStats(radioStatsData,ch);
+}
+
 var countryFlags={
   AF:"🇦🇫",AL:"🇦🇱",DZ:"🇩🇿",AR:"🇦🇷",AU:"🇦🇺",AT:"🇦🇹",BE:"🇧🇪",BR:"🇧🇷",
   BG:"🇧🇬",CA:"🇨🇦",CL:"🇨🇱",CN:"🇨🇳",CO:"🇨🇴",HR:"🇭🇷",CZ:"🇨🇿",DK:"🇩🇰",
@@ -1273,18 +1336,87 @@ function formatDate(iso){
   return months[parseInt(parts[1],10)-1]+" "+parseInt(parts[2],10);
 }
 
+function renderStationStats(data,stationKey){
+  var station=data.stations&&data.stations[stationKey];
+  if(!station) station={total_sessions:0,total_listen_hours:0,active_listeners:0,top_countries:[],daily:[]};
+
+  /* big numbers — per station */
+  document.getElementById("radio-sessions").textContent=station.total_sessions.toLocaleString();
+  document.getElementById("radio-hours").textContent=station.total_listen_hours.toFixed(1);
+
+  /* daily chart */
+  var daily=station.daily||[];
+  var chart=document.getElementById("radio-chart");
+  var labels=document.getElementById("radio-chart-labels");
+  chart.textContent="";
+  labels.textContent="";
+
+  var barColors={lofi:"linear-gradient(to top,#ffcc66,rgba(255,204,102,.4))",synthwave:"linear-gradient(to top,#ff66cc,rgba(255,102,204,.4))"};
+
+  if(daily.length>0){
+    var maxSessions=Math.max.apply(null,daily.map(function(d){return d.sessions}))||1;
+    daily.forEach(function(d){
+      var pct=Math.max((d.sessions/maxSessions)*100,4);
+      var bar=document.createElement("div");
+      bar.className="radio-chart-bar";
+      bar.style.height=pct+"%";
+      bar.style.background=barColors[stationKey]||barColors.lofi;
+      var tip=document.createElement("div");
+      tip.className="tooltip";
+      tip.textContent=d.date+" \u2014 "+d.sessions+" sessions \u00B7 "+d.listen_hours.toFixed(1)+"h";
+      bar.appendChild(tip);
+      chart.appendChild(bar);
+    });
+    var lStart=document.createElement("span");
+    lStart.textContent=formatDate(daily[0].date);
+    var lEnd=document.createElement("span");
+    lEnd.textContent=formatDate(daily[daily.length-1].date);
+    labels.appendChild(lStart);
+    labels.appendChild(lEnd);
+  }
+
+  /* countries */
+  var countries=station.top_countries||[];
+  var cEl=document.getElementById("radio-countries");
+  cEl.textContent="";
+  countries.forEach(function(c){
+    var flag=countryFlags[c.country_code]||"\uD83C\uDF10";
+    var div=document.createElement("div");
+    div.className="radio-country";
+    var flagSpan=document.createElement("span");
+    flagSpan.className="radio-country-flag";
+    flagSpan.textContent=flag;
+    var sessSpan=document.createElement("span");
+    sessSpan.className="radio-country-sessions";
+    sessSpan.textContent=c.sessions;
+    div.appendChild(flagSpan);
+    div.appendChild(document.createTextNode(c.country));
+    div.appendChild(sessSpan);
+    cEl.appendChild(div);
+  });
+
+  /* globe */
+  window._radioCountries=countries;
+  initGlobe(countries);
+}
+
 function renderRadioStats(){
   fetch("https://radio.cliamp.stream/statistics")
     .then(function(r){return r.json()})
     .then(function(data){
-      var lofi=data.stations&&data.stations.lofi;
-      if(!lofi)return;
+      radioStatsData=data;
 
-      /* listeners */
+      /* listeners — aggregate across all stations */
+      var totalListeners=0;
+      var stations=data.stations||{};
+      Object.keys(stations).forEach(function(k){
+        totalListeners+=(stations[k].active_listeners||0);
+      });
+
       var el=document.getElementById("radio-listeners");
       el.textContent="";
       var s1=document.createElement("strong");
-      s1.textContent=lofi.active_listeners;
+      s1.textContent=totalListeners;
       var s2=document.createElement("strong");
       s2.textContent=data.total_sessions;
       el.appendChild(s1);
@@ -1292,62 +1424,7 @@ function renderRadioStats(){
       el.appendChild(s2);
       el.appendChild(document.createTextNode(" total sessions"));
 
-      /* big numbers */
-      document.getElementById("radio-sessions").textContent=data.total_sessions.toLocaleString();
-      document.getElementById("radio-hours").textContent=data.total_listen_hours.toFixed(1);
-
-      /* daily chart */
-      var daily=lofi.daily||[];
-      var chart=document.getElementById("radio-chart");
-      var labels=document.getElementById("radio-chart-labels");
-      chart.textContent="";
-      labels.textContent="";
-
-      if(daily.length>0){
-        var maxSessions=Math.max.apply(null,daily.map(function(d){return d.sessions}))||1;
-        daily.forEach(function(d){
-          var pct=Math.max((d.sessions/maxSessions)*100,4);
-          var bar=document.createElement("div");
-          bar.className="radio-chart-bar";
-          bar.style.height=pct+"%";
-          bar.style.background="linear-gradient(to top,#ffcc66,rgba(255,204,102,.4))";
-          var tip=document.createElement("div");
-          tip.className="tooltip";
-          tip.textContent=d.date+" \u2014 "+d.sessions+" sessions \u00B7 "+d.listen_hours.toFixed(1)+"h";
-          bar.appendChild(tip);
-          chart.appendChild(bar);
-        });
-        var lStart=document.createElement("span");
-        lStart.textContent=formatDate(daily[0].date);
-        var lEnd=document.createElement("span");
-        lEnd.textContent=formatDate(daily[daily.length-1].date);
-        labels.appendChild(lStart);
-        labels.appendChild(lEnd);
-      }
-
-      /* countries */
-      var countries=lofi.top_countries||[];
-      var cEl=document.getElementById("radio-countries");
-      cEl.textContent="";
-      countries.forEach(function(c){
-        var flag=countryFlags[c.country_code]||"\uD83C\uDF10";
-        var div=document.createElement("div");
-        div.className="radio-country";
-        var flagSpan=document.createElement("span");
-        flagSpan.className="radio-country-flag";
-        flagSpan.textContent=flag;
-        var sessSpan=document.createElement("span");
-        sessSpan.className="radio-country-sessions";
-        sessSpan.textContent=c.sessions;
-        div.appendChild(flagSpan);
-        div.appendChild(document.createTextNode(c.country));
-        div.appendChild(sessSpan);
-        cEl.appendChild(div);
-      });
-
-      /* globe */
-      window._radioCountries=countries;
-      initGlobe(countries);
+      renderStationStats(data,currentStatTab);
     })
     .catch(function(){
       var el=document.getElementById("radio-listeners");
