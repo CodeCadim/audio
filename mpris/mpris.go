@@ -140,7 +140,7 @@ func New(send func(interface{})) (*Service, error) {
 		return nil, fmt.Errorf("mpris: session bus: %w", err)
 	}
 
-	reply, err := conn.RequestName("org.mpris.MediaPlayer2.cliamp",
+	reply, err := conn.RequestName("org.mpris.MediaPlayer2.CodeCadimAudio",
 		dbus.NameFlagDoNotQueue)
 	if err != nil {
 		conn.Close()
