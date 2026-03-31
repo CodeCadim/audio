@@ -1750,9 +1750,12 @@ function renderStationStats(data,stationKey){
     tEl.appendChild(div);
   });
 
-  /* globe — update with active listeners */
-  window._radioCountries=activeCountries;
-  initGlobe(activeCountries);
+  /* globe — only init once */
+  if(!window._globeInitialized){
+    window._radioCountries=activeCountries;
+    initGlobe(activeCountries);
+    window._globeInitialized=true;
+  }
 }
 
 function renderRadioStats(){
