@@ -814,6 +814,7 @@
       <a href="#features">Features</a>
       <a href="#themes">Themes</a>
       <a href="#keys">Keys</a>
+      <a href="#remote">Remote</a>
       <a href="#plugins">Plugins</a>
       <a href="#radio">Radio</a>
       <a href="https://github.com/bjarneo/cliamp">GitHub</a>
@@ -1271,10 +1272,43 @@
         <div class="key-row"><kbd>--resample-quality &lt;n&gt;</kbd><span>Resample quality (1&ndash;4)</span></div>
         <div class="key-row"><kbd>--compact</kbd><span>Cap width at 80 columns</span></div>
         <div class="key-row"><kbd>--bit-depth &lt;n&gt;</kbd><span>PCM bit depth: 16 or 32</span></div>
+        <div class="key-row"><kbd>--playlist &lt;name&gt;</kbd><span>Load a local TOML playlist and start playing</span></div>
         <div class="key-row"><kbd>--provider &lt;name&gt;</kbd><span>Default provider (radio, navidrome, plex, jellyfin, spotify, ytmusic)</span></div>
         <div class="key-row"><kbd>--visualizer &lt;mode&gt;</kbd><span>Visualizer mode (Bars, Wave, Matrix, Retro, etc.)</span></div>
         <div class="key-row"><kbd>--upgrade</kbd><span>Update to latest release</span></div>
         <div class="key-row"><kbd>--help / --version</kbd><span>Help &amp; version info</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REMOTE CONTROL ═══ -->
+<section id="remote">
+  <div class="wrap">
+    <div class="section-label"><span class="label-text">remote-control</span></div>
+    <p class="table-intro">
+      Control a running cliamp instance from another terminal via Unix socket IPC.
+    </p>
+    <div class="keys-wrap">
+      <div class="keys-grid">
+        <div class="key-row"><kbd>cliamp play / pause / toggle</kbd><span>Playback control</span></div>
+        <div class="key-row"><kbd>cliamp stop</kbd><span>Stop playback</span></div>
+        <div class="key-row"><kbd>cliamp next / prev</kbd><span>Track navigation</span></div>
+        <div class="key-row"><kbd>cliamp status [--json]</kbd><span>Current state</span></div>
+        <div class="key-row"><kbd>cliamp volume &lt;dB&gt;</kbd><span>Set volume in dB</span></div>
+        <div class="key-row"><kbd>cliamp seek &lt;seconds&gt;</kbd><span>Relative seek (positive or negative)</span></div>
+        <div class="key-row"><kbd>cliamp load &quot;Name&quot;</kbd><span>Load a playlist</span></div>
+        <div class="key-row"><kbd>cliamp queue /path/to/file</kbd><span>Queue a track</span></div>
+        <div class="key-row"><kbd>cliamp shuffle [on|off|toggle]</kbd><span>Toggle or set shuffle</span></div>
+        <div class="key-row"><kbd>cliamp repeat [off|all|one|cycle]</kbd><span>Set or cycle repeat mode</span></div>
+        <div class="key-row"><kbd>cliamp mono [on|off|toggle]</kbd><span>Toggle or set mono output</span></div>
+        <div class="key-row"><kbd>cliamp speed &lt;ratio&gt;</kbd><span>Playback speed (0.25&ndash;2.0)</span></div>
+        <div class="key-row"><kbd>cliamp eq &lt;preset&gt;</kbd><span>Set EQ preset (Flat, Rock, Pop, Jazz, &hellip;)</span></div>
+        <div class="key-row"><kbd>cliamp eq --band &lt;0-9&gt; &lt;dB&gt;</kbd><span>Set individual EQ band</span></div>
+        <div class="key-row"><kbd>cliamp device list</kbd><span>List audio output devices</span></div>
+        <div class="key-row"><kbd>cliamp device &lt;name&gt;</kbd><span>Switch audio output device</span></div>
+        <div class="key-row"><kbd>cliamp theme &lt;name|list&gt;</kbd><span>Set or list themes</span></div>
+        <div class="key-row"><kbd>cliamp vis &lt;name|next|list&gt;</kbd><span>Set or cycle visualizer</span></div>
       </div>
     </div>
   </div>
