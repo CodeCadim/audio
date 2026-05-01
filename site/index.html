@@ -602,6 +602,29 @@
   .install-note a{color:var(--cyan)}
   .install-note a:hover{color:var(--amber)}
 
+  /* First-run setup callout */
+  .next-step{
+    margin-top:28px;
+    padding:16px 18px;
+    border:1px solid var(--dim-2);
+    border-left:3px solid var(--amber);
+    background:rgba(255,170,0,0.04);
+  }
+  .next-step-label{
+    font-size:11px;color:var(--amber);
+    letter-spacing:1.5px;font-weight:700;
+    text-transform:uppercase;margin-bottom:8px;
+  }
+  .next-step h3{
+    font-size:15px;color:var(--bright);
+    margin:0 0 6px 0;font-weight:700;
+  }
+  .next-step p{
+    font-size:12px;color:var(--fg);
+    margin:0 0 12px 0;line-height:1.6;
+  }
+  .next-step .install-box{margin:0}
+
   /* ═══════════ SOURCES (providers) ═══════════ */
   .sources-intro{
     color:var(--fg);font-size:13px;
@@ -1421,6 +1444,17 @@
     <div class="install-note">
       Or build from source — <a href="https://github.com/bjarneo/cliamp">see the README</a>.
     </div>
+
+    <div class="next-step">
+      <div class="next-step-label">Next step · configure providers</div>
+      <h3>Run the setup wizard</h3>
+      <p>An interactive TUI walks you through Navidrome, Plex, Jellyfin, Spotify, and YouTube Music. It links to each provider's credential page, validates the connection, and writes the right block to your config file.</p>
+      <div class="install-box" onclick="copyCmd(this,'cliamp setup')">
+        <div class="install-platform">Setup</div>
+        <code><span class="prompt">$ </span>cliamp setup</code>
+        <span class="copied-msg">COPIED</span>
+      </div>
+    </div>
   </div>
 </section>
 
@@ -1433,7 +1467,7 @@
       <span class="sh-line"></span>
     </div>
     <p class="sources-intro">
-      Stream from everywhere. Every provider runs through the same <em>playlist, EQ, visualizer, and lyrics pipeline</em> — your config follows you across services.
+      Stream from everywhere. Every provider runs through the same <em>playlist, EQ, visualizer, and lyrics pipeline</em> — your config follows you across services. Run <code>cliamp setup</code> for an interactive wizard that walks you through Navidrome, Plex, Jellyfin, Spotify, and YouTube Music.
     </p>
     <div class="sources-grid">
       <div class="source" style="--src-color:#1db954">
