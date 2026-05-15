@@ -66,8 +66,9 @@ Item {
         }
 
         function drawPlay(ctx, x0, y0, sz) {
-            // Single right triangle, slightly narrower than the bounds for balance.
-            triangleRight(ctx, x0, y0, sz, 0.92);
+            // Narrow the triangle to 92% of width for balance; full height, centered.
+            const w = sz * 0.92;
+            triangleRight(ctx, x0 + (sz - w) / 2, y0, w, sz);
         }
 
         function drawPause(ctx, x0, y0, sz) {

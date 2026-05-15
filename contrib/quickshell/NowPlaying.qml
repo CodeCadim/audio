@@ -1,10 +1,10 @@
-// Notification-sized now-playing card for cliamp. Visualizer-first.
+// Compact now-playing card for cliamp. Dense Winamp-style layout.
 //
-// Layout (top to bottom):
-//   - prominent spectrum visualizer
-//   - title (bold) + artist (dim)
-//   - thin seekable progress bar + time readout
-//   - transport row: << play/pause >>
+// Layout (260x62, sharp edges):
+//   row 1: title (bold) ............................ time (mm:ss/mm:ss)
+//   row 2: artist (dim) ............................ << play/pause >>
+//   row 3: 10-band spectrum visualizer (full width)
+//   row 4: thin seekable progress line
 //
 // Driven by an MprisPlayer for transport + position. Theme colors come from
 // the active Omarchy theme at ~/.config/omarchy/current/theme/colors.toml,
@@ -14,7 +14,6 @@ import Quickshell
 import Quickshell.Services.Mpris
 import Quickshell.Io
 import QtQuick
-import QtQuick.Layouts
 
 Item {
     id: root
@@ -58,23 +57,22 @@ Item {
             if (m) t[m[1]] = m[2];
         }
         if (t.background) root.bg     = t.background;
-        if (t.foreground) root.fg = t.foreground;
+        if (t.foreground) root.fg     = t.foreground;
         if (t.accent)     root.accent = t.accent;
         if (t.color2)     root.green  = t.color2;
         if (t.color3)     root.yellow = t.color3;
         if (t.color1)     root.red    = t.color1;
         if (t.color8)     root.dim    = t.color8;
         else              root.dim    = Qt.darker(root.fg, 1.7);
-        // Card border: prefer `selection_background` (subtle dark gray), fall
-        // back to `color8` (medium gray), then to a darkened foreground.
         if (t.selection_background) root.edge = t.selection_background;
         else if (t.color8)          root.edge = t.color8;
         else                        root.edge = Qt.darker(root.fg, 3.0);
     }
 
-    readonly property bool ready:   player !== null
-    readonly property bool playing: ready && player.isPlaying
-    readonly property real len:     ready && player.lengthSupported ? player.length : 0
+    readonly property bool ready:    player !== null
+    readonly property bool playing:  ready && player.isPlaying
+    readonly property real len:      ready && player.lengthSupported ? player.length : 0
+    readonly property real progress: len > 0 ? Math.min(1, livePosition / len) : 0
     property real livePosition: 0
 
     Timer {
@@ -107,165 +105,167 @@ Item {
     Rectangle {
         anchors.fill: parent
         radius: 0
-        color: Qt.rgba(root.bg.r, root.bg.g, root.bg.b, 0.92)
+        color: Qt.rgba(root.bg.r, root.bg.g, root.bg.b, 0.94)
         border.color: root.edge
         border.width: 1
     }
 
-    Visualizer {
-        id: vis
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.topMargin: 10
-        anchors.leftMargin: 6
-        anchors.rightMargin: 6
-        height: 40
-        bands: stream.bands
-        barColor:    root.accent
-        accentColor: root.yellow
-        warnColor:   root.red
-    }
+    Item {
+        id: inner
+        anchors.fill: parent
+        anchors.leftMargin: 7
+        anchors.rightMargin: 7
+        anchors.topMargin: 4
+        anchors.bottomMargin: 4
 
-    ColumnLayout {
-        anchors.top: vis.bottom
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.leftMargin: 10
-        anchors.rightMargin: 10
-        anchors.bottomMargin: 8
-        anchors.topMargin: 6
-        spacing: 5
+        Text {
+            id: titleT
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: timeT.left
+            anchors.rightMargin: 6
+            height: 12
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+            text: root.ready ? (root.player.trackTitle || "Unknown title")
+                             : "cliamp: not running"
+            color: root.fg
+            font.family: "monospace"
+            font.pixelSize: 11
+            font.bold: true
+            textFormat: Text.PlainText
+        }
+        Text {
+            id: timeT
+            anchors.top: parent.top
+            anchors.right: parent.right
+            height: 12
+            width: 70
+            horizontalAlignment: Text.AlignRight
+            verticalAlignment: Text.AlignVCenter
+            text: root.fmt(root.livePosition) + "/" + root.fmt(root.len)
+            color: root.dim
+            font.family: "monospace"
+            font.pixelSize: 9
+        }
 
-        RowLayout {
-            Layout.fillWidth: true
+        // Explicit width/height on each button overrides TransportButton's
+        // implicit padding so the row stays a compact 14 px tall.
+        Row {
+            id: transport
+            anchors.top: titleT.bottom
+            anchors.topMargin: 2
+            anchors.right: parent.right
+            height: 14
             spacing: 6
 
-            MediaIcon {
-                shape: root.playing ? "play" : "pause"
-                color: root.green
-                size: 10
-                opacity: root.ready ? 1.0 : 0.35
-                Layout.preferredWidth: 12
-                Layout.preferredHeight: 12
-                Layout.alignment: Qt.AlignVCenter
-            }
-
-            ColumnLayout {
-                Layout.fillWidth: true
-                spacing: 0
-                Text {
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                    text: root.ready ? (root.player.trackTitle || "Unknown title")
-                                     : "cliamp: not running"
-                    color: root.fg
-                    font.family: "monospace"
-                    font.pixelSize: 12
-                    font.bold: true
-                    textFormat: Text.PlainText
-                }
-                Text {
-                    Layout.fillWidth: true
-                    elide: Text.ElideRight
-                    text: root.ready ? (root.player.trackArtist || "")
-                                     : ""
-                    color: root.dim
-                    font.family: "monospace"
-                    font.pixelSize: 10
-                    visible: text.length > 0
-                    textFormat: Text.PlainText
-                }
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 8
-
-            Item {
-                id: barWrap
-                Layout.fillWidth: true
-                Layout.preferredHeight: 10
-
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    width: parent.width
-                    height: 2
-                    color: root.dim
-                    opacity: 0.5
-                    radius: 0
-                }
-                Rectangle {
-                    anchors.verticalCenter: parent.verticalCenter
-                    height: 2
-                    width: parent.width * (root.len > 0 ? Math.min(1, root.livePosition / root.len) : 0)
-                    color: root.accent
-                    radius: 0
-                }
-                Rectangle {
-                    visible: root.ready && root.len > 0
-                    width: 6; height: 6; radius: 0
-                    color: root.accent
-                    anchors.verticalCenter: parent.verticalCenter
-                    x: Math.max(0, Math.min(parent.width - width,
-                           parent.width * (root.livePosition / root.len) - width / 2))
-                }
-
-                MouseArea {
-                    anchors.fill: parent
-                    enabled: root.ready && root.player.canSeek && root.len > 0
-                    cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
-                    onClicked: (mouse) => {
-                        const frac = Math.max(0, Math.min(1, mouse.x / width));
-                        const target = frac * root.len;
-                        root.player.position = target;
-                        root.livePosition = target;
-                    }
-                }
-            }
-
-            Text {
-                text: root.fmt(root.livePosition) + " / " + root.fmt(root.len)
-                color: root.dim
-                font.family: "monospace"
-                font.pixelSize: 9
-                Layout.preferredWidth: 76
-                horizontalAlignment: Text.AlignRight
-            }
-        }
-
-        RowLayout {
-            Layout.fillWidth: true
-            spacing: 16
-
-            Item { Layout.fillWidth: true }
             TransportButton {
+                width: 14; height: 14
                 shape: "prev"
-                iconSize: 12
+                iconSize: 8
                 enabled: root.ready && root.player.canGoPrevious
-                fgColor: root.fg
+                fgColor: root.dim
                 hoverColor: root.yellow
                 onActivated: root.player.previous()
             }
             TransportButton {
+                width: 16; height: 14
                 shape: root.playing ? "pause" : "play"
-                iconSize: 14
+                iconSize: 10
                 enabled: root.ready && root.player.canTogglePlaying
                 fgColor: root.accent
                 hoverColor: root.green
                 onActivated: root.player.togglePlaying()
             }
             TransportButton {
+                width: 14; height: 14
                 shape: "next"
-                iconSize: 12
+                iconSize: 8
                 enabled: root.ready && root.player.canGoNext
-                fgColor: root.fg
+                fgColor: root.dim
                 hoverColor: root.yellow
                 onActivated: root.player.next()
             }
-            Item { Layout.fillWidth: true }
+        }
+
+        Text {
+            id: artistT
+            anchors.top: titleT.bottom
+            anchors.topMargin: 2
+            anchors.left: parent.left
+            anchors.right: transport.left
+            anchors.rightMargin: 8
+            height: 14
+            verticalAlignment: Text.AlignVCenter
+            elide: Text.ElideRight
+            text: root.ready ? (root.player.trackArtist || "") : ""
+            color: root.dim
+            font.family: "monospace"
+            font.pixelSize: 10
+            textFormat: Text.PlainText
+        }
+
+        Visualizer {
+            id: vis
+            anchors.top: artistT.bottom
+            anchors.topMargin: 2
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 18
+            bands: stream.bands
+            barColor:    root.green
+            accentColor: root.yellow
+            warnColor:   root.red
+            segH: 2
+            segGap: 1
+        }
+
+        Item {
+            id: barWrap
+            anchors.top: vis.bottom
+            anchors.topMargin: 2
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 4
+
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                width: parent.width
+                height: 1
+                color: root.dim
+                opacity: 0.45
+                radius: 0
+            }
+            Rectangle {
+                anchors.verticalCenter: parent.verticalCenter
+                height: 1
+                width: parent.width * root.progress
+                color: root.accent
+                radius: 0
+            }
+            Rectangle {
+                visible: root.ready && root.len > 0
+                width: 4; height: 4; radius: 0
+                color: root.accent
+                anchors.verticalCenter: parent.verticalCenter
+                x: Math.max(0, Math.min(parent.width - width,
+                       parent.width * root.progress - width / 2))
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                // Expand the hit area vertically so the 1px line is actually clickable.
+                anchors.topMargin: -4
+                anchors.bottomMargin: -4
+                enabled: root.ready && root.player.canSeek && root.len > 0
+                cursorShape: enabled ? Qt.PointingHandCursor : Qt.ArrowCursor
+                onClicked: (mouse) => {
+                    const frac = Math.max(0, Math.min(1, mouse.x / width));
+                    const target = frac * root.len;
+                    root.player.position = target;
+                    root.livePosition = target;
+                }
+            }
         }
     }
 }

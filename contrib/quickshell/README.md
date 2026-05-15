@@ -45,17 +45,17 @@ Mapping into the widget:
 
 The card border uses `selection_background` (a muted dark gray in most Omarchy themes), falling back to `color8` if that key is missing. Switching theme rewrites `colors.toml` in place; the widget watches it and re-applies colors live (no reload needed).
 
-To reposition the card, edit `shell.qml`. The defaults anchor a transparent full-width strip to the bottom of every screen and center a 320 x 140 card inside it with a 16 px gap from the edge:
+To reposition the card, edit `shell.qml`. The defaults anchor a transparent full-width strip to the bottom of every screen and center a 260 x 62 card inside it with a 16 px gap from the edge:
 
 ```qml
 PanelWindow {
     anchors { bottom: true; left: true; right: true }
     margins { bottom: 16 }
-    implicitHeight: 140
+    implicitHeight: 62
     color: "transparent"
 
     NowPlaying {
-        width: 320
+        width: 260
         height: parent.height
         anchors.horizontalCenter: parent.horizontalCenter
     }
