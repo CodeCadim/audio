@@ -1,6 +1,6 @@
 # cliamp quickshell widget
 
-A notification-sized "now playing" card for [Quickshell](https://quickshell.org), centered along the bottom of every screen and driven by cliamp's MPRIS service (`org.mpris.MediaPlayer2.cliamp`). Shows a prominent live spectrum visualizer, title, artist, a click-to-seek progress bar, time readout, and prev/play-pause/next buttons. Colors are picked up from the active Omarchy theme (`~/.config/omarchy/current/theme/colors.toml`) and update live when the theme changes. Hides itself when cliamp is not running. Click the card and press Esc or Q to quit the widget.
+A compact "now playing" card for [Quickshell](https://quickshell.org) (260 x 62), centered along the bottom of every screen and driven by cliamp's MPRIS service (`org.mpris.MediaPlayer2.cliamp`). Two-row layout: title + time on top, artist + transport on the second row, a 10-band Winamp 2-style spectrum below, and a thin click-to-seek line at the bottom. Colors are picked up from the active Omarchy theme (`~/.config/omarchy/current/theme/colors.toml`) and update live when the theme changes. Hides itself when cliamp is not running. Click the card and press Esc or Q to quit the widget.
 
 Linux only. Requires Quickshell 0.2+ and cliamp running with its default MPRIS service enabled (it is by default on Linux).
 
@@ -20,7 +20,7 @@ ln -s "$PWD/contrib/quickshell" ~/.config/quickshell/cliamp
 qs -c cliamp
 ```
 
-Then start cliamp in another terminal. The bar appears on every screen, anchored to the top edge.
+Then start cliamp in another terminal. The card appears on every screen, anchored to the bottom edge.
 
 ## Customization
 
@@ -36,12 +36,12 @@ Mapping into the widget:
 | --- | --- |
 | `background` | card background |
 | `foreground` | primary text (title) |
-| `accent` | visualizer bars, progress fill |
-| `color2` | playing indicator / play button (green slot) |
-| `color3` | peak markers, hover (yellow slot) |
-| `color1` | red slot |
+| `accent` | progress fill, seek handle, play/pause icon |
+| `color2` | visualizer bottom LED rows (green slot), play/pause hover |
+| `color3` | visualizer mid LED rows + peak caps, prev/next hover (yellow slot) |
+| `color1` | visualizer top LED rows (red slot) |
 | `selection_background` | card border (falls back to `color8`) |
-| `color8` | secondary text / dim slot (falls back to a darker `foreground`) |
+| `color8` | secondary text + prev/next icons, time readout (falls back to a darker `foreground`) |
 
 The card border uses `selection_background` (a muted dark gray in most Omarchy themes), falling back to `color8` if that key is missing. Switching theme rewrites `colors.toml` in place; the widget watches it and re-applies colors live (no reload needed).
 
@@ -82,5 +82,5 @@ Swap `bottom` for `top` to flip to the top edge, or replace the `horizontalCente
 - Clicking the progress bar issues an MPRIS `SetPosition`, which cliamp handles via `playback.SetPositionMsg`.
 - Theme colors come from the active Omarchy theme via a `FileView` watching `~/.config/omarchy/current/theme/colors.toml`. The TOML is parsed in QML with a small regex (no external script). Theme swaps update the card without reloading Quickshell.
 - Spectrum bands stream over the cliamp IPC socket via `cliamp visstream`. One long-lived subprocess per widget.
-- The widget renders a Winamp 2-style spectrum analyzer: each band is a stack of LED segments with a tiny gap between them, with a falling peak cap. Three-tone gradient across the height — the Omarchy accent for the bottom rows, `color3` (yellow) for the middle, `color1` (red) for the top. The bar block spans the full card width, edge to edge.
+- The widget renders a Winamp 2-style spectrum analyzer: each band is a stack of LED segments with a tiny gap between them, with a falling peak cap. Three-tone gradient across the height — `color2` (green) for the bottom rows, `color3` (yellow) for the middle, `color1` (red) for the top, mirroring the classic Winamp gradient (and the cliamp TUI). The bar block spans the full card width, edge to edge.
 - All UI elements use sharp 90-degree corners (no `radius`) to match a terminal aesthetic.
