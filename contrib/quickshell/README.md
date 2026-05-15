@@ -1,6 +1,6 @@
 # cliamp quickshell widget
 
-A compact "now playing" card for [Quickshell](https://quickshell.org) (260 x 62), centered along the bottom of every screen and driven by cliamp's MPRIS service (`org.mpris.MediaPlayer2.cliamp`). Two-row layout: title + time on top, artist + transport on the second row, a 10-band Winamp 2-style spectrum below, and a thin click-to-seek line at the bottom. Colors are picked up from the active Omarchy theme (`~/.config/omarchy/current/theme/colors.toml`) and update live when the theme changes. Hides itself when cliamp is not running. Click the card and press Esc or Q to quit the widget.
+A compact "now playing" card for [Quickshell](https://quickshell.org) (300 x 72), centered along the bottom of every screen and driven by cliamp's MPRIS service (`org.mpris.MediaPlayer2.cliamp`). Two-row layout: title + time on top, artist + transport on the second row, a 10-band Winamp 2-style spectrum below, and a thin click-to-seek line at the bottom. Colors are picked up from the active Omarchy theme (`~/.config/omarchy/current/theme/colors.toml`) and update live when the theme changes. Hides itself when cliamp is not running. Click the card and press Esc or Q to quit the widget.
 
 Linux only. Requires Quickshell 0.2+ and cliamp running with its default MPRIS service enabled (it is by default on Linux).
 
@@ -45,17 +45,17 @@ Mapping into the widget:
 
 The card border uses `selection_background` (a muted dark gray in most Omarchy themes), falling back to `color8` if that key is missing. Switching theme rewrites `colors.toml` in place; the widget watches it and re-applies colors live (no reload needed).
 
-To reposition the card, edit `shell.qml`. The defaults anchor a transparent full-width strip to the bottom of every screen and center a 260 x 62 card inside it with a 16 px gap from the edge:
+To reposition the card, edit `shell.qml`. The defaults anchor a transparent full-width strip to the bottom of every screen and center a 300 x 72 card inside it with a 16 px gap from the edge:
 
 ```qml
 PanelWindow {
     anchors { bottom: true; left: true; right: true }
     margins { bottom: 16 }
-    implicitHeight: 62
+    implicitHeight: 72
     color: "transparent"
 
     NowPlaying {
-        width: 260
+        width: 300
         height: parent.height
         anchors.horizontalCenter: parent.horizontalCenter
     }

@@ -44,13 +44,13 @@ Scope {
             // dismiss the widget. Focus is acquired when the card is clicked.
             WlrLayershell.keyboardFocus: WlrKeyboardFocus.OnDemand
 
-            implicitHeight: 62
+            implicitHeight: 72
             color: "transparent"
 
             visible: root.cliampPlayer !== null
 
             NowPlaying {
-                width: 260
+                width: 300
                 height: parent.height
                 anchors.horizontalCenter: parent.horizontalCenter
                 player: root.cliampPlayer

@@ -68,10 +68,13 @@ Item {
             const b = root.bands || [];
             const n = b.length || 10;
 
-            // Bar geometry: fill the full width, tight gaps.
-            const gap = 2;
-            const bw  = Math.max(2, Math.floor((w - gap * (n - 1)) / n));
-            const xStart = Math.max(0, Math.floor((w - (bw * n + gap * (n - 1))) / 2));
+            // Bar geometry: integer bar widths for crisp pixels, then absorb
+            // any leftover space into the inter-bar gap so the block spans
+            // edge-to-edge (matches the seek line's width).
+            const minGap = 2;
+            const bw  = Math.max(2, Math.floor((w - minGap * (n - 1)) / n));
+            const gap = n > 1 ? (w - bw * n) / (n - 1) : 0;
+            const xStart = 0;
 
             // Number of LED rows that fit. Cap at 24-ish for the classic
             // Winamp density.

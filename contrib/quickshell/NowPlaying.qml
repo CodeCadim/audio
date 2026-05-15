@@ -1,6 +1,6 @@
 // Compact now-playing card for cliamp. Dense Winamp-style layout.
 //
-// Layout (260x62, sharp edges):
+// Layout (300x72, sharp edges):
 //   row 1: title (bold) ............................ time (mm:ss/mm:ss)
 //   row 2: artist (dim) ............................ << play/pause >>
 //   row 3: 10-band spectrum visualizer (full width)
@@ -113,25 +113,25 @@ Item {
     Item {
         id: inner
         anchors.fill: parent
-        anchors.leftMargin: 7
-        anchors.rightMargin: 7
-        anchors.topMargin: 4
-        anchors.bottomMargin: 4
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+        anchors.topMargin: 5
+        anchors.bottomMargin: 5
 
         Text {
             id: titleT
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: timeT.left
-            anchors.rightMargin: 6
-            height: 12
+            anchors.rightMargin: 8
+            height: 13
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
             text: root.ready ? (root.player.trackTitle || "Unknown title")
                              : "cliamp: not running"
             color: root.fg
             font.family: "monospace"
-            font.pixelSize: 11
+            font.pixelSize: 12
             font.bold: true
             textFormat: Text.PlainText
         }
@@ -139,48 +139,50 @@ Item {
             id: timeT
             anchors.top: parent.top
             anchors.right: parent.right
-            height: 12
-            width: 70
-            horizontalAlignment: Text.AlignRight
+            height: 13
             verticalAlignment: Text.AlignVCenter
             text: root.fmt(root.livePosition) + "/" + root.fmt(root.len)
             color: root.dim
             font.family: "monospace"
-            font.pixelSize: 9
+            font.pixelSize: 10
         }
 
         // Explicit width/height on each button overrides TransportButton's
-        // implicit padding so the row stays a compact 14 px tall.
+        // implicit padding so the row stays compact. The row width tracks
+        // timeT.width so the transport cluster occupies the same horizontal
+        // column as the timestamp above it; spacing is computed to evenly
+        // distribute the three buttons across that width.
         Row {
             id: transport
             anchors.top: titleT.bottom
             anchors.topMargin: 2
             anchors.right: parent.right
-            height: 14
-            spacing: 6
+            width: timeT.width
+            height: 16
+            spacing: Math.max(2, (width - 52) / 2)
 
             TransportButton {
-                width: 14; height: 14
+                width: 16; height: 16
                 shape: "prev"
-                iconSize: 8
+                iconSize: 10
                 enabled: root.ready && root.player.canGoPrevious
                 fgColor: root.dim
                 hoverColor: root.yellow
                 onActivated: root.player.previous()
             }
             TransportButton {
-                width: 16; height: 14
+                width: 20; height: 16
                 shape: root.playing ? "pause" : "play"
-                iconSize: 10
+                iconSize: 12
                 enabled: root.ready && root.player.canTogglePlaying
                 fgColor: root.accent
                 hoverColor: root.green
                 onActivated: root.player.togglePlaying()
             }
             TransportButton {
-                width: 14; height: 14
+                width: 16; height: 16
                 shape: "next"
-                iconSize: 8
+                iconSize: 10
                 enabled: root.ready && root.player.canGoNext
                 fgColor: root.dim
                 hoverColor: root.yellow
@@ -195,13 +197,13 @@ Item {
             anchors.left: parent.left
             anchors.right: transport.left
             anchors.rightMargin: 8
-            height: 14
+            height: 16
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
             text: root.ready ? (root.player.trackArtist || "") : ""
             color: root.dim
             font.family: "monospace"
-            font.pixelSize: 10
+            font.pixelSize: 11
             textFormat: Text.PlainText
         }
 
@@ -211,7 +213,7 @@ Item {
             anchors.topMargin: 2
             anchors.left: parent.left
             anchors.right: parent.right
-            height: 18
+            height: 22
             bands: stream.bands
             barColor:    root.green
             accentColor: root.yellow
@@ -223,7 +225,7 @@ Item {
         Item {
             id: barWrap
             anchors.top: vis.bottom
-            anchors.topMargin: 2
+            anchors.topMargin: 3
             anchors.left: parent.left
             anchors.right: parent.right
             height: 4
