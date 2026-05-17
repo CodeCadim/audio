@@ -38,7 +38,7 @@ import (
 )
 
 // version is set at build time via -ldflags "-X main.version=vX.Y.Z".
-var version string
+var version = "dev"
 
 func run(overrides config.Overrides, positional []string, daemon bool) error {
 	cfg, err := config.Load()
